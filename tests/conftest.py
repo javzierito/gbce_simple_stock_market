@@ -46,5 +46,4 @@ def get_stock_instances(sample_data_gbce):
     for key, values in sample_data_gbce.items():
         stock_instance = Stock(symbol=key, **values)
         stocks.append(stock_instance)
-
     return stocks
