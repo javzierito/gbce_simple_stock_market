@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
 
-from stock import Stock
+from src.stock import Stock
 
 
 class BuySell(Enum):
@@ -15,9 +15,9 @@ class Trade:
     quantity: int
     stock: Stock
     buysell: BuySell
-    timestamp: datetime.now()
     price: float
+    timestamp = datetime.now()
 
     def __post_init__(self):
-        if self.buysell not in BuySell:
-            raise ValueError("Incorrect trade type must be 'BUY' or 'SELL'")
+        if not isinstance(self.buysell, BuySell):
+            raise ValueError(f"Incorrect trade type: {self.buysell}. Must be 'BUY' or 'SELL'")
