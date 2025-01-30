@@ -15,7 +15,7 @@ class Stock:
     fixed_dividend: float
     par_value: float
 
-    def dividend_yield(self, price: float):
+    def dividend_yield(self, price: float) -> float:
         if price <= 0:
             raise ValueError("with a price of 0 or inferior the div yields loses its meaning")
         if self.type == "COMMON":
@@ -23,7 +23,7 @@ class Stock:
         else:
             return self.par_value * self.fixed_dividend / price
 
-    def pe_ratio(self, price: float):
+    def pe_ratio(self, price: float) -> float:
         dividend = self.dividend_yield(price) * price
         return price / dividend if dividend > 0 else float("inf")
 
