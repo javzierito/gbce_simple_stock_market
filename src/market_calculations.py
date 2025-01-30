@@ -1,7 +1,7 @@
 from datetime import timedelta, datetime
 from statistics import geometric_mean
 
-from trade import Trade
+from src.trade import Trade
 
 
 def calculate_gbce_shared_index(volume_weighted_stocks: list[float]) -> float:
