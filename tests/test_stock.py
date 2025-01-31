@@ -8,6 +8,13 @@ def test_negative_and_zero_price_value(get_stock_instances, caplog):
         second_stock.dividend_yield(-20)
 
 
+def test_unknown_stocktype(get_stock_instances, caplog):
+    stock = get_stock_instances[1]
+    stock.type = "Derivates"
+    with pytest.raises(ValueError):
+        stock.dividend_yield(20)
+
+
 def test_pe_ratio_normal_values(get_stock_instances):
     stock_prices = [20, 23, 34, 50, 40]
     resultant_dividend_and_pr = [
