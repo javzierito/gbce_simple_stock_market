@@ -1,7 +1,7 @@
 import pytest
 
 from src.stock import Stock
-from src.trade import Trade, BuySell
+from src.trade import BuySell
 from src.market_calculations import TradingSystem
 
 
@@ -51,6 +51,7 @@ def get_stock_instances(sample_data_gbce):
     return stocks
 
 
+# IMPROVE javier: find a better way to generate data for the tests
 @pytest.fixture
 def create_trading_system_with_logged_trades(get_stock_instances):
     trading_sys = TradingSystem()
