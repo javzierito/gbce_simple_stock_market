@@ -6,7 +6,7 @@ from src.market_calculations import TradingSystem
 
 
 @pytest.fixture
-def sample_data_gbce():
+def stocks_sample_data():
     stocks_of_market = {
         "TEA": {
             "type": "COMMON",
@@ -29,7 +29,7 @@ def sample_data_gbce():
         "GIN": {
             "type": "PREFERRED",
             "last_dividend": 8,
-            "fixed_dividend": 0.02,
+            "fixed_dividend": "2%",
             "par_value": 100
         },
         "JOE": {
@@ -43,9 +43,9 @@ def sample_data_gbce():
 
 
 @pytest.fixture
-def get_stock_instances(sample_data_gbce):
+def get_stock_instances(stocks_sample_data):
     stocks = []
-    for key, values in sample_data_gbce.items():
+    for key, values in stocks_sample_data.items():
         stock_instance = Stock(symbol=key, **values)
         stocks.append(stock_instance)
     return stocks
