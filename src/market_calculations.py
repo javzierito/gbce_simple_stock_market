@@ -13,7 +13,7 @@ class TradingSystem:
         if stock.symbol not in self.trades:
             self.trades[stock.symbol] = []
         instance_to_append = Trade(quantity, stock, operation_type, price)
-        self.trades[stock.symbol] = instance_to_append
+        self.trades[stock.symbol].append(instance_to_append)
 
     def get_stock_trades(self, symbol):
         return list(self.trades.get(symbol, []))

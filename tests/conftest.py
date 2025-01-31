@@ -1,6 +1,8 @@
 import pytest
 
 from src.stock import Stock
+from src.trade import Trade, BuySell
+from src.market_calculations import TradingSystem
 
 
 @pytest.fixture
@@ -47,3 +49,12 @@ def get_stock_instances(sample_data_gbce):
         stock_instance = Stock(symbol=key, **values)
         stocks.append(stock_instance)
     return stocks
+
+
+@pytest.fixture
+def create_trading_system_with_logged_trades(get_stock_instances):
+    trading_sys = TradingSystem()
+    for stock in get_stock_instances:
+        for quantity, price, operation in zip([3, 4], [15, 40], [BuySell.BUY, BuySell.SELL]):
+            trading_sys.record_trade(quantity, stock, operation, price)
+    return trading_sys

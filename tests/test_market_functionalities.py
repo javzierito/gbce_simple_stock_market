@@ -1,19 +1,12 @@
 import math
-import pytest
 
-from src.market_calculations import calculate_gbce_shared_index
-
-
-def test_calculation_of_gbce_shared_index():
-    original_data = list(range(1, 20))
-    ref_value = 7.928946844865149
-    index_value = calculate_gbce_shared_index(original_data)
-    assert math.isclose(ref_value, index_value)
+from src.market_calculations import GBCEShareIndex
 
 
-def test_calculation_of_gbce_shared_index_ill_data():
-    original_data = list(range(20))
-    with pytest.raises(ValueError):
-        calculate_gbce_shared_index(original_data)
-        calculate_gbce_shared_index(list(range(-10, 0)))
-
+def test_calculation_of_gbce_shared_index(create_trading_system_with_logged_trades, get_stock_instances):
+    trading_system = create_trading_system_with_logged_trades
+    stocks = get_stock_instances
+    ref_index_value = 0.034146341463414616
+    gbce_index = GBCEShareIndex(stocks, trading_system)
+    index_value = gbce_index.calculate_index()
+    assert math.isclose(ref_index_value, index_value)
