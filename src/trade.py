@@ -1,8 +1,9 @@
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
+from pydantic import BaseModel
 
-from src.stock import Stock
+from src.stock import BaseStock
 
 
 class BuySell(Enum):
@@ -11,10 +12,10 @@ class BuySell(Enum):
 
 
 @dataclass
-class Trade:
+class Trade(BaseModel):
     # IMPROVEMENT javier: we can have a gui easily if i move attr to
     quantity: int
-    stock: Stock
+    stock: BaseStock
     buysell: BuySell
     price: float
     timestamp: datetime = datetime.now()

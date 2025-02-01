@@ -1,15 +1,16 @@
 from datetime import timedelta, datetime
 from statistics import geometric_mean
+from pydantic import BaseModel
 
 from src.trade import Trade, BuySell
-from src.stock import Stock
+from src.stock import BaseStock
 
 
-class TradingSystem:
+class TradingSystem(BaseModel):
     def __init__(self):
         self.trades = {}
 
-    def record_trade(self, quantity: int, stock: Stock, operation_type: BuySell, price: float):
+    def record_trade(self, quantity: int, stock: BaseStock, operation_type: BuySell, price: float):
         if stock.symbol not in self.trades:
             self.trades[stock.symbol] = []
         instance_to_append = Trade(quantity, stock, operation_type, price)
@@ -19,8 +20,8 @@ class TradingSystem:
         return list(self.trades.get(symbol, []))
 
 
-class GBCEShareIndex:
-    def __init__(self, stocks: list[Stock], trade_system: TradingSystem):
+class GBCEShareIndex(BaseModel):
+    def __init__(self, stocks: list[BaseStock], trade_system: TradingSystem):
         self.stocks = stocks
         self.trading_system = trade_system
 
