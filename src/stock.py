@@ -16,12 +16,12 @@ class BaseStock(ABC):
             raise ValueError("Price must be greater than 0 for dividend yield calculation.")
 
     @abstractmethod
-    def _dividend_yield(self, price: float) -> float:
+    def _calculate_dividend_yield(self, price: float) -> float:
         pass
 
     def dividend_yield(self, price: float) -> float:
         self.validate_price(price)
-        return self._dividend_yield(price)
+        return self._calculate_dividend_yield(price)
 
     def calculate_pe_ratio(self, price: float) -> float:
         dividend = self.dividend_yield(price) * price

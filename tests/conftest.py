@@ -1,6 +1,6 @@
 import pytest
 
-from src.stock import Stock
+from src.stock import stock_factory
 from src.trade import BuySell
 from src.market_calculations import TradingSystem
 
@@ -46,8 +46,11 @@ def stocks_sample_data():
 def get_stock_instances(stocks_sample_data):
     stocks = []
     for key, values in stocks_sample_data.items():
-        stock_instance = Stock(symbol=key, **values)
-        stocks.append(stock_instance)
+        stock_type = values.pop("type")
+        values["symbol"] = key
+        stock_instance = stock_factory(stock_type.upper(), values)
+        if stock_instance:
+            stocks.append(stock_instance)
     return stocks
 
 
