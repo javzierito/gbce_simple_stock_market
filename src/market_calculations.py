@@ -1,14 +1,14 @@
 from datetime import timedelta, datetime
 from statistics import geometric_mean
 from pydantic import BaseModel
+from typing import Dict, List
 
 from src.trade import Trade, BuySell
 from src.stock import BaseStock
 
 
 class TradingSystem(BaseModel):
-    def __init__(self):
-        self.trades = {}
+    trades: Dict[str, List[Trade]] = {}
 
     def record_trade(self, quantity: int, stock: BaseStock, operation_type: BuySell, price: float):
         if stock.symbol not in self.trades:
@@ -20,7 +20,7 @@ class TradingSystem(BaseModel):
         return list(self.trades.get(symbol, []))
 
 
-class GBCEShareIndex(BaseModel):
+class GBCEShareIndex:
     def __init__(self, stocks: list[BaseStock], trade_system: TradingSystem):
         self.stocks = stocks
         self.trading_system = trade_system

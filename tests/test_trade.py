@@ -1,4 +1,5 @@
 import pytest
+from datetime import datetime
 
 from src.trade import Trade, BuySell
 
@@ -9,7 +10,8 @@ def test_ill_defining_trade_instance(get_stock_instances):
             quantity=2,
             stock=get_stock_instances[2],
             buysell='BUY',
-            price=23
+            price=23,
+            timestamp=datetime.now()
         )
         Trade(
             quantity=2,
