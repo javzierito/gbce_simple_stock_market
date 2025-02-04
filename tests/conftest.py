@@ -1,6 +1,6 @@
 import pytest
 
-from src.stock import stock_factory
+from src.stock import stock_factory, CommonStock, PreferredStock
 from src.trade import BuySell
 from src.market_calculations import TradingSystem
 
@@ -62,4 +62,16 @@ def create_trading_system_with_logged_trades(get_stock_instances):
         for quantity, price, operation in zip([3, 4], [15, 40], [BuySell.BUY, BuySell.SELL]):
             trading_sys.record_trade(quantity, stock, operation, price)
     return trading_sys
+
+
+@pytest.fixture
+def get_stock_instances():
+    return [
+        CommonStock("TEA", 0, 100),
+        CommonStock("POP", 8, 100),
+        CommonStock("ALE", 23, 60),
+        PreferredStock("GIN", 8, 100, 2),
+        CommonStock("JOE", 13, 250),
+    ]
+
 
