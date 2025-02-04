@@ -9,6 +9,7 @@ from src.trade import Trade, BuySell
 from src.stock import BaseStock
 
 
+# TODO JAVZE: concurrency missed here, need to include test
 @dataclass
 class TradingSystem:
     trades: Dict[str, List[Trade]] = field(default_factory=dict)
@@ -23,6 +24,7 @@ class TradingSystem:
         return list(self.trades.get(symbol, []))
 
 
+# TODO JAVZE can we replace the datatype for speed?
 class GBCEShareIndex:
     def __init__(self, stocks: list[BaseStock], trade_system: TradingSystem):
         self.stocks = stocks

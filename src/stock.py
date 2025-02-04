@@ -69,6 +69,7 @@ def filter_stock_attrs(stock_attrs: dict, stock_klass: BaseStock) -> dict:
     return {key: stock_attrs[key] for key in klass_members if key != "self"}
 
 
+# TODO JAVZE: error handling needs to be improved everywhere
 def stock_factory(stock_type: str, stock_attrs: dict) -> Union[PreferredStock, CommonStock, None]:
     stock_klass = stock_type_vs_class.get(stock_type, "")
     if not stock_klass:
