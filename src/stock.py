@@ -1,3 +1,4 @@
+import inspect
 from typing import Union
 from abc import ABC, abstractmethod
 from pydantic import ValidationError
@@ -37,6 +38,7 @@ class PreferredStock(BaseStock):
         return self.par_value * fix_dividend / price
 
 
+@dataclass
 class CommonStock(BaseStock):
     def _calculate_dividend_yield(self, price: float) -> float:
         return self.last_dividend / price
@@ -49,8 +51,9 @@ stock_type_vs_class = {
 
 
 def filter_stock_attrs(stock_attrs: dict, stock_klass: BaseStock):
-    klass_members = stock_klass.__annotations__
-    return {key: stock_attrs[key] for key in klass_members}
+    potential_klass_attrs = inspect.signature(stock_klass.__init__)
+    klass_members = potential_klass_attrs.parameters.keys()
+    return {key: stock_attrs[key] for key in klass_members if key != "self"}
 
 
 def stock_factory(stock_type: str, stock_attrs: dict) -> Union[PreferredStock, CommonStock, None]:

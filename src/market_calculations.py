@@ -1,5 +1,7 @@
 from datetime import timedelta, datetime
 from statistics import geometric_mean
+from pydantic.dataclasses import dataclass
+from dataclasses import field
 from pydantic import BaseModel
 from typing import Dict, List
 
@@ -7,8 +9,9 @@ from src.trade import Trade, BuySell
 from src.stock import BaseStock
 
 
-class TradingSystem(BaseModel):
-    trades: Dict[str, List[Trade]] = {}
+@dataclass
+class TradingSystem:
+    trades: Dict[str, List[Trade]] = field(default_factory=dict)
 
     def record_trade(self, quantity: int, stock: BaseStock, operation_type: BuySell, price: float):
         if stock.symbol not in self.trades:

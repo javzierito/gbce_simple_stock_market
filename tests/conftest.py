@@ -29,7 +29,7 @@ def stocks_sample_data():
         "GIN": {
             "type": "PREFERRED",
             "last_dividend": 8,
-            "fixed_dividend": "2%",
+            "fixed_dividend": 2,
             "par_value": 100
         },
         "JOE": {
@@ -62,3 +62,4 @@ def create_trading_system_with_logged_trades(get_stock_instances):
         for quantity, price, operation in zip([3, 4], [15, 40], [BuySell.BUY, BuySell.SELL]):
             trading_sys.record_trade(quantity, stock, operation, price)
     return trading_sys
+
