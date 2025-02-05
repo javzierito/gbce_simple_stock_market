@@ -4,6 +4,7 @@ from pydantic.dataclasses import dataclass
 from dataclasses import field
 from pydantic import BaseModel
 from typing import Dict, List
+from decimal import Decimal
 
 from src.trade import Trade, BuySell
 from src.stock import BaseStock
@@ -13,7 +14,7 @@ from src.stock import BaseStock
 class TradingSystem:
     trades: Dict[str, List[Trade]] = field(default_factory=dict)
 
-    def record_trade(self, quantity: int, stock: BaseStock, operation_type: BuySell, price: float):
+    def record_trade(self, quantity: Decimal, stock: BaseStock, operation_type: BuySell, price: Decimal):
         if stock.symbol not in self.trades:
             self.trades[stock.symbol] = []
         instance_to_append = Trade(quantity, stock, operation_type, price)
