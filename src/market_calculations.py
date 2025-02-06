@@ -19,33 +19,18 @@ class TradingSystem:
         with self.lock_trading:
             self.executor.submit(self._record_trade, quantity, stock, operation_type, price)
 
-    def _record_trade(self, quantity, stock, operation_type, price):
+    def _record_trade(self, quantity: int, stock: BaseStock, operation_type: BuySell, price: float):
         if stock.symbol not in self.trades:
             self.trades[stock.symbol] = deque()
-        self.trades[stock.symbol].append(Trade(quantity, stock, operation_type, price))
+        try:
+            trade_instance = Trade(quantity, stock, operation_type, price)
+        except Exception:
+            # Need to dive into the different problems
+            pass
 
-    def get_stock_trades(self, symbol):
-        with self.lock_trading:
-            return list(self.trades.get(symbol, []))
+        self.trades[stock.symbol].append(trade_instance)
 
-
-class TradingSystem:
-    def __init__(self):
-        self.trades: Dict[str, Deque[Trade]] = {}
-        self.lock_trading = threading.Lock()
-
-    def record_trade(self, quantity: int, stock: BaseStock, operation_type: BuySell, price: float):
-        with self.lock_trading:
-            if stock.symbol not in self.trades:
-                self.trades[stock.symbol] = deque()
-            try:
-                trade_instance = Trade(quantity, stock, operation_type, price)
-            except Exception:
-                # Need to dive into the different problems
-                pass
-            self.trades[stock.symbol].append(trade_instance)
-
-    def get_stock_trades(self, symbol):
+    def get_stock_trades(self, symbol: str):
         with self.lock_trading:
             return list(self.trades.get(symbol, []))
 
