@@ -1,6 +1,7 @@
+from __future__ import annotations
 import math
 from decimal import Decimal
-
+from typing import List, Dict, Any
 import pytest
 from hypothesis import given, strategies as st
 
@@ -13,14 +14,14 @@ from src.stock import (
 )
 
 
-def test_negative_and_zero_price_value(get_stock_instances):
+def test_negative_and_zero_price_value(get_stock_instances: List[CommonStock | PreferredStock]):
     second_stock = get_stock_instances[1]
     with pytest.raises(ValueError):
         second_stock.dividend_yield(0)
         second_stock.dividend_yield(-20)
 
 
-def test_unknown_stocktype(stocks_sample_data):
+def test_unknown_stocktype(stocks_sample_data: Dict[str, Dict[str, Any]]):
     for key, values in stocks_sample_data.items():
         stock_type = "DERIVATES"
         values["symbol"] = key
@@ -47,7 +48,7 @@ def test_stock_validation_error():
     assert "last_dividend" in str(excinfo.value)
 
 
-def test_pe_ratio_normal_values(get_stock_instances):
+def test_pe_ratio_normal_values(get_stock_instances: List[CommonStock | PreferredStock]):
     stock_prices = [20, 23, 34, 50, 40]
     resultant_dividend_and_pr = [
         [0.0, float("inf")],
