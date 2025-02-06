@@ -1,27 +1,37 @@
+import threading
+from collections import deque
 from datetime import timedelta, datetime
 from statistics import geometric_mean
 from pydantic.dataclasses import dataclass
 from dataclasses import field
-from typing import Dict, List
 from decimal import Decimal
+from typing import Dict, List, Deque
+import concurrent.futures
+from collections import deque
 
 from src.trade import Trade, BuySell
 from src.stock import BaseStock
 
 
-# TODO JAVZE: concurrency missed here, need to include test
-@dataclass
 class TradingSystem:
-    trades: Dict[str, List[Trade]] = field(default_factory=dict)
+    def __init__(self):
+        self.trades: Dict[str, Deque[Trade]] = {}
+        self.lock_trading = threading.Lock()
 
-    def record_trade(self, quantity: Decimal, stock: BaseStock, operation_type: BuySell, price: Decimal):
-        if stock.symbol not in self.trades:
-            self.trades[stock.symbol] = []
-        instance_to_append = Trade(quantity, stock, operation_type, price)
-        self.trades[stock.symbol].append(instance_to_append)
+    def record_trade(self, quantity: int, stock: BaseStock, operation_type: BuySell, price: float):
+        with self.lock_trading:
+            if stock.symbol not in self.trades:
+                self.trades[stock.symbol] = deque()
+            try:
+                trade_instance = Trade(quantity, stock, operation_type, price)
+            except Exception:
+                # Need to dive into the different problems
+                pass
+            self.trades[stock.symbol].append(trade_instance)
 
     def get_stock_trades(self, symbol):
-        return list(self.trades.get(symbol, []))
+        with self.lock_trading:
+            return list(self.trades.get(symbol, []))
 
 
 # TODO JAVZE can we replace the datatype for speed?
