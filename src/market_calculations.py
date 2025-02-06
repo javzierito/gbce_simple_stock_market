@@ -2,7 +2,6 @@ from datetime import timedelta, datetime
 from statistics import geometric_mean
 from pydantic.dataclasses import dataclass
 from dataclasses import field
-from pydantic import BaseModel
 from typing import Dict, List
 from decimal import Decimal
 
@@ -45,4 +44,4 @@ class GBCEShareIndex:
         total_quantity = sum(trade.quantity for trade in trades_in_time)
         total_price_quantity = sum(trade.price * trade.quantity for trade in trades_in_time)
         if total_quantity > 0:
-            return total_quantity / total_price_quantity
+            return total_price_quantity / total_quantity
