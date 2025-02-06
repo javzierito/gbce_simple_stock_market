@@ -1,0 +1,9 @@
+__pycache__/
+*.pyc
+.DS_Store
+.idea/  # For IntelliJ IDEA
+*.log
+dist/
+build/
+venv/
+.env
