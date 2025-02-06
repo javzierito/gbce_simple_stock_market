@@ -28,7 +28,7 @@ def test_calculation_of_gbceindex_no_trades(get_stock_instances):
 def test_concurrent_store_of_trades(generate_trades_data):
     trades_data, stock_symbols = generate_trades_data
     trading_system = TradingSystem()
-    with concurrent.futures.ThreadPoolExecutor() as executor:
+    with trading_system.executor as executor:
         futures = []
         for trade_data in trades_data:
             future = executor.submit(trading_system.record_trade, *trade_data)
@@ -41,18 +41,23 @@ def generate_stock_symbols(num_symbols=50):
     symbols = set()
     while len(symbols) < num_symbols:
         symbol_length = random.randint(3, 5)
-        symbol = ''.join(random.choices(string.ascii_uppercase, k=symbol_length))
+        symbol = "".join(random.choices(string.ascii_uppercase, k=symbol_length))
         symbols.add(symbol)
     return list(symbols)
 
 
-@given(st.lists(st.tuples(
-    st.sampled_from(generate_stock_symbols(50)),  # Use the stock_symbols fixture
-    st.integers(min_value=1, max_value=10000),
-    st.sampled_from(["BUY", "SELL"]),
-    st.decimals(min_value=0.01, max_value=1000.00),
-    st.datetimes(min_value=datetime.now() - timedelta(minutes=5), max_value=datetime.now())
-), min_size=10))  # Generate at least 100 trades
+@given(
+    st.lists(
+        st.tuples(
+            st.sampled_from(generate_stock_symbols(50)),  # Use the stock_symbols fixture
+            st.integers(min_value=1, max_value=10000),
+            st.sampled_from(["BUY", "SELL"]),
+            st.decimals(min_value=0.01, max_value=1000.00),
+            st.datetimes(min_value=datetime.now() - timedelta(minutes=5), max_value=datetime.now()),
+        ),
+        min_size=10,
+    )
+)  # Generate at least 100 trades
 def test_concurrent_store_of_trades_10_million(trades_data):
     trading_system = TradingSystem()
     with concurrent.futures.ThreadPoolExecutor() as executor:

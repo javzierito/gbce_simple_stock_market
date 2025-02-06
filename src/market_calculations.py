@@ -4,35 +4,51 @@ from datetime import timedelta, datetime
 from statistics import geometric_mean
 from typing import Dict, Deque
 from concurrent.futures import ThreadPoolExecutor
+from queue import Queue
+import logging
 
 from src.trade import Trade, BuySell
 from src.stock import BaseStock
 
 
+logger = logging.getLogger(__name__)
+
+
 class TradingSystem:
     def __init__(self):
-        self.trades = {}
+        self.trades: Dict[str, Queue] = {}
         self.lock_trading = threading.Lock()
         self.executor = ThreadPoolExecutor(max_workers=4)
 
     def record_trade(self, quantity: int, stock: BaseStock, operation_type: BuySell, price: float):
+        # We only lock while checking/creating the queue
         with self.lock_trading:
-            self.executor.submit(self._record_trade, quantity, stock, operation_type, price)
+            if stock.symbol not in self.trades:
+                self.trades[stock.symbol] = Queue()
+        self.executor.submit(self._record_trade, quantity, stock, operation_type, price)
 
     def _record_trade(self, quantity: int, stock: BaseStock, operation_type: BuySell, price: float):
-        if stock.symbol not in self.trades:
-            self.trades[stock.symbol] = deque()
         try:
             trade_instance = Trade(quantity, stock, operation_type, price)
+            self.trades[stock.symbol].put(trade_instance)
         except Exception:
             # Need to dive into the different problems
             pass
 
-        self.trades[stock.symbol].append(trade_instance)
-
     def get_stock_trades(self, symbol: str):
+        if symbol not in self.trades:
+            return []
+
         with self.lock_trading:
-            return list(self.trades.get(symbol, []))
+            queue = self.trades[symbol]
+            trades = []
+
+            while not queue.empty():
+                trades.append(queue.get())
+
+            for trade in trades:
+                queue.put(trade)
+            return trades
 
 
 # TODO JAVZE can we replace the datatype for speed?
