@@ -11,36 +11,16 @@ from src.market_calculations import TradingSystem
 @pytest.fixture
 def stocks_sample_data() -> Dict[str, Dict[str, Any]]:
     return {
-        "TEA": {
-            "type": "COMMON",
-            "last_dividend": Decimal(0),
-            "fixed_dividend": None,
-            "par_value": Decimal(100)
-            },
-        "POP": {
-            "type": "COMMON",
-            "last_dividend": Decimal(8),
-            "fixed_dividend": None,
-            "par_value": Decimal(100)
-            },
-        "ALE": {
-            "type": "COMMON",
-            "last_dividend": Decimal(23),
-            "fixed_dividend": None,
-            "par_value": Decimal(60)
-        },
+        "TEA": {"type": "COMMON", "last_dividend": Decimal(0), "fixed_dividend": None, "par_value": Decimal(100)},
+        "POP": {"type": "COMMON", "last_dividend": Decimal(8), "fixed_dividend": None, "par_value": Decimal(100)},
+        "ALE": {"type": "COMMON", "last_dividend": Decimal(23), "fixed_dividend": None, "par_value": Decimal(60)},
         "GIN": {
             "type": "PREFERRED",
             "last_dividend": Decimal(8),
             "fixed_dividend": Decimal(2),
-            "par_value": Decimal(100)
+            "par_value": Decimal(100),
         },
-        "JOE": {
-            "type": "COMMON",
-            "last_dividend": Decimal(13),
-            "fixed_dividend": None,
-            "par_value": Decimal(250)
-        }
+        "JOE": {"type": "COMMON", "last_dividend": Decimal(13), "fixed_dividend": None, "par_value": Decimal(250)},
     }
 
 

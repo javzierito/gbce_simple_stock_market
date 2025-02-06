@@ -10,7 +10,6 @@ from src.stock import (
     PreferredStock,
     StockValidationError,
     NotImplementedStockError,
-    StockCreationError
 )
 
 
@@ -51,18 +50,21 @@ def test_stock_validation_error():
 def test_pe_ratio_normal_values(get_stock_instances):
     stock_prices = [20, 23, 34, 50, 40]
     resultant_dividend_and_pr = [
-        [0.0, float('inf')],
+        [0.0, float("inf")],
         [0.34782608695652173, 2.875],
         [0.6764705882352942, 1.4782608695652173],
-        [0.04, 25.0], [0.325, 3.076923076923077]
+        [0.04, 25.0],
+        [0.325, 3.076923076923077],
     ]
     dividend_and_pr = []
     for price, stock in zip(stock_prices, get_stock_instances):
-        dividend_and_pr.append(
-            [stock.dividend_yield(price), stock.calculate_pe_ratio(price)]
-        )
-    assert all([[math.isclose(result, calculation) for result, calculation in zip(result_list, calc_list)]
-               for result_list, calc_list in zip(resultant_dividend_and_pr, dividend_and_pr)])
+        dividend_and_pr.append([stock.dividend_yield(price), stock.calculate_pe_ratio(price)])
+    assert all(
+        [
+            [math.isclose(result, calculation) for result, calculation in zip(result_list, calc_list)]
+            for result_list, calc_list in zip(resultant_dividend_and_pr, dividend_and_pr)
+        ]
+    )
 
 
 class TestStockCalculations:
@@ -70,7 +72,7 @@ class TestStockCalculations:
         st.text(min_size=1, max_size=5),
         st.decimals(min_value=0, max_value=1000),
         st.decimals(min_value=0, max_value=1000),
-        st.decimals(min_value=0, max_value=100)
+        st.decimals(min_value=0, max_value=100),
     )
     def test_base_stock_initialization(self, symbol, last_dividend, par_value, fixed_dividend):
         CommonStock(symbol, last_dividend, par_value)
@@ -92,14 +94,14 @@ class TestStockCalculations:
     def test_common_stock_pe_ratio(self, price):
         stock = CommonStock("TEST", Decimal(10), Decimal(100))
         dividend = stock.dividend_yield(price) * price
-        expected_pe = price / dividend if dividend > 0 else float('inf')
+        expected_pe = price / dividend if dividend > 0 else float("inf")
         assert stock.calculate_pe_ratio(price) == pytest.approx(expected_pe)
 
     @given(st.decimals(min_value=0.001, max_value=1000), st.decimals(min_value=0, max_value=100))
     def test_preferred_stock_pe_ratio(self, price, fixed_dividend):
         stock = PreferredStock("TEST", Decimal(10), Decimal(100), fixed_dividend)
         dividend = stock.dividend_yield(price) * price
-        expected_pe = price / dividend if dividend > 0 else float('inf')
+        expected_pe = price / dividend if dividend > 0 else float("inf")
         assert stock.calculate_pe_ratio(price) == pytest.approx(expected_pe)
 
     @given(st.decimals(min_value=-5000, max_value=-1), st.decimals(min_value=0, max_value=1000))
