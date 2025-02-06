@@ -1,15 +1,19 @@
 from datetime import timedelta, datetime
 from statistics import geometric_mean
+from pydantic.dataclasses import dataclass
+from dataclasses import field
+from typing import Dict, List
+from decimal import Decimal
 
 from src.trade import Trade, BuySell
-from src.stock import Stock
+from src.stock import BaseStock
 
 
+@dataclass
 class TradingSystem:
-    def __init__(self):
-        self.trades = {}
+    trades: Dict[str, List[Trade]] = field(default_factory=dict)
 
-    def record_trade(self, quantity: int, stock: Stock, operation_type: BuySell, price: float):
+    def record_trade(self, quantity: Decimal, stock: BaseStock, operation_type: BuySell, price: Decimal):
         if stock.symbol not in self.trades:
             self.trades[stock.symbol] = []
         instance_to_append = Trade(quantity, stock, operation_type, price)
@@ -20,7 +24,7 @@ class TradingSystem:
 
 
 class GBCEShareIndex:
-    def __init__(self, stocks: list[Stock], trade_system: TradingSystem):
+    def __init__(self, stocks: list[BaseStock], trade_system: TradingSystem):
         self.stocks = stocks
         self.trading_system = trade_system
 
@@ -40,4 +44,4 @@ class GBCEShareIndex:
         total_quantity = sum(trade.quantity for trade in trades_in_time)
         total_price_quantity = sum(trade.price * trade.quantity for trade in trades_in_time)
         if total_quantity > 0:
-            return total_quantity / total_price_quantity
+            return total_price_quantity / total_quantity

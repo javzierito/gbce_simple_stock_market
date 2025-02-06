@@ -1,8 +1,9 @@
-from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
+from decimal import Decimal
+from pydantic.dataclasses import dataclass
 
-from src.stock import Stock
+from src.stock import BaseStock
 
 
 class BuySell(Enum):
@@ -13,12 +14,8 @@ class BuySell(Enum):
 @dataclass
 class Trade:
     # IMPROVEMENT javier: we can have a gui easily if i move attr to
-    quantity: int
-    stock: Stock
+    quantity: Decimal
+    stock: BaseStock
     buysell: BuySell
-    price: float
+    price: Decimal
     timestamp: datetime = datetime.now()
-
-    def __post_init__(self):
-        if not isinstance(self.buysell, BuySell):
-            raise ValueError(f"Incorrect trade type: {self.buysell}. Must be 'BUY' or 'SELL'")
