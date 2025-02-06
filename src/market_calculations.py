@@ -1,27 +1,21 @@
 import threading
-from collections import deque
 from datetime import timedelta, datetime
 from statistics import geometric_mean
-from typing import Dict, Deque
+from typing import Dict
 from concurrent.futures import ThreadPoolExecutor
 from queue import Queue
-import logging
 
 from src.trade import Trade, BuySell
 from src.stock import BaseStock
 
 
-logger = logging.getLogger(__name__)
-
-
 class TradingSystem:
-    def __init__(self):
+    def __init__(self, workers:  int = 4):
         self.trades: Dict[str, Queue] = {}
         self.lock_trading = threading.Lock()
-        self.executor = ThreadPoolExecutor(max_workers=4)
+        self.executor = ThreadPoolExecutor(max_workers=workers)
 
     def record_trade(self, quantity: int, stock: BaseStock, operation_type: BuySell, price: float):
-        # We only lock while checking/creating the queue
         with self.lock_trading:
             if stock.symbol not in self.trades:
                 self.trades[stock.symbol] = Queue()
@@ -31,9 +25,9 @@ class TradingSystem:
         try:
             trade_instance = Trade(quantity, stock, operation_type, price)
             self.trades[stock.symbol].put(trade_instance)
-        except Exception:
-            # Need to dive into the different problems
-            pass
+        except Exception as e:
+            msg = f"problems recording trade for stock {stock}, operation {operation_type}, price {price}"
+            print(msg)
 
     def get_stock_trades(self, symbol: str):
         if symbol not in self.trades:
@@ -51,7 +45,6 @@ class TradingSystem:
             return trades
 
 
-# TODO JAVZE can we replace the datatype for speed?
 class GBCEShareIndex:
     def __init__(self, stocks: list[BaseStock], trade_system: TradingSystem):
         self.stocks = stocks

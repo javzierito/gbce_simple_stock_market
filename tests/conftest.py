@@ -5,6 +5,7 @@ import random
 from datetime import datetime, timedelta
 from decimal import Decimal
 from typing import Dict, Any, List
+import concurrent.futures
 
 from src.stock import stock_factory, CommonStock, PreferredStock
 from src.trade import BuySell
@@ -42,11 +43,16 @@ def get_stock_instances(stocks_sample_data: Dict[str, Dict[str, Any]]) -> List[C
 # IMPROVE javier: find a better way to generate data for the tests
 @pytest.fixture
 def create_trading_system_with_logged_trades(get_stock_instances):
-    trading_sys = TradingSystem()
-    for stock in get_stock_instances:
-        for quantity, price, operation in zip([3, 4], [15, 40], [BuySell.BUY, BuySell.SELL]):
-            trading_sys.record_trade(quantity, stock, operation, price)
-    return trading_sys
+    trading_system = TradingSystem(workers=4)
+    with trading_system.executor as executor:
+        futures = []
+        for stock in get_stock_instances:
+            for quantity, price, operation in zip([3, 4], [15, 40], [BuySell.BUY, BuySell.SELL]):
+                trade_data = (quantity, stock, operation, price)
+                future = executor.submit(trading_system.record_trade, *trade_data)
+                futures.append(future)
+        concurrent.futures.wait(futures)
+    return trading_system
 
 
 @pytest.fixture(autouse=True)
@@ -57,7 +63,7 @@ def setup_precision():
     return
 
 
-def generate_stock_symbols(num_symbols=50):
+def generate_stock_symbols(num_symbols: int=50) -> list[str]:
     symbols = set()
     while len(symbols) < num_symbols:
         symbol_length = random.randint(3, 5)
@@ -66,21 +72,23 @@ def generate_stock_symbols(num_symbols=50):
     return list(symbols)
 
 
-@pytest.fixture(params=[1000])
-def generate_trades_data(request):  # Access the request object
+def generate_random_stock():
+
+
+@pytest.fixture(params=[100, 10e5, 10e7])
+def generate_trades_data(request):
     num_trades = request.param
     stock_symbols = generate_stock_symbols(50)
     print(f"Generating {num_trades} trades for this test...")
 
     trades_with_datetime = []
-    for _ in range(num_trades):  # Generate num_trades trades
+    for _ in range(num_trades):
         symbol = random.choice(stock_symbols)
         quantity = random.randint(1, 10000)
         buy_sell = random.choice(["BUY", "SELL"])
-        price = Decimal(random.uniform(0.01, 1000.00)).quantize(Decimal("0.01"))  # Decimal with 2 decimal places
+        price = Decimal(random.uniform(0.01, 1000.00)).quantize(Decimal("0.01"))
         timestamp = datetime.fromtimestamp(
-            random.randint(int((datetime.now() - timedelta(minutes=5)).timestamp()), int(datetime.now().timestamp()))
+            random.randint(int((datetime.now() - timedelta(minutes=130)).timestamp()), int(datetime.now().timestamp()))
         )
         trades_with_datetime.append((symbol, quantity, buy_sell, price, timestamp))
-
     return trades_with_datetime, stock_symbols
