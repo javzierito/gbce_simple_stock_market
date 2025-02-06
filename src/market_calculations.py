@@ -2,15 +2,31 @@ import threading
 from collections import deque
 from datetime import timedelta, datetime
 from statistics import geometric_mean
-from pydantic.dataclasses import dataclass
-from dataclasses import field
-from decimal import Decimal
-from typing import Dict, List, Deque
-import concurrent.futures
-from collections import deque
+from typing import Dict, Deque
+from concurrent.futures import ThreadPoolExecutor
 
 from src.trade import Trade, BuySell
 from src.stock import BaseStock
+
+
+class TradingSystem:
+    def __init__(self):
+        self.trades = {}
+        self.lock_trading = threading.Lock()
+        self.executor = ThreadPoolExecutor(max_workers=4)
+
+    def record_trade(self, quantity: int, stock: BaseStock, operation_type: BuySell, price: float):
+        with self.lock_trading:
+            self.executor.submit(self._record_trade, quantity, stock, operation_type, price)
+
+    def _record_trade(self, quantity, stock, operation_type, price):
+        if stock.symbol not in self.trades:
+            self.trades[stock.symbol] = deque()
+        self.trades[stock.symbol].append(Trade(quantity, stock, operation_type, price))
+
+    def get_stock_trades(self, symbol):
+        with self.lock_trading:
+            return list(self.trades.get(symbol, []))
 
 
 class TradingSystem:
