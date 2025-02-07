@@ -4,9 +4,11 @@ import concurrent.futures
 import random
 from typing import List
 from datetime import datetime
+from decimal import Decimal
 
 from src.market_calculations import GBCEShareIndex, TradingSystem
 from src.stock import CommonStock, PreferredStock
+from src.trade import BuySell
 
 
 def test_calculation_of_gbce_shared_index(
@@ -26,6 +28,15 @@ def test_calculation_of_gbceindex_no_trades(get_stock_instances: List[CommonStoc
     gbce_index = GBCEShareIndex(stocks, trading_system)
     index_value = gbce_index.calculate_index()
     assert not index_value
+
+
+def test_wrong_args_for_trading_system(get_stock_instances):
+    trading_system = TradingSystem()
+    stock = get_stock_instances[1]
+    with pytest.raises(ValueError):
+        trading_system.record_trade(Decimal(0), stock, BuySell.BUY, Decimal(30))
+        trading_system.record_trade(Decimal(12), "stock", BuySell.BUY, Decimal(30))
+        trading_system.record_trade(Decimal(2), stock, "george", Decimal(30))
 
 
 def test_concurrent_store_of_trades(generate_trades_data):
