@@ -16,6 +16,12 @@ class TradingSystem:
     def record_trade(self, quantity: Decimal, stock: BaseStock, operation_type: BuySell, price: Decimal):
         if stock.symbol not in self.trades:
             self.trades[stock.symbol] = []
+        if not isinstance(quantity, Decimal) or quantity <= 0:
+            raise ValueError("Quantity must be a positive Decimal")
+        if not isinstance(stock, BaseStock):
+            raise TypeError("Invalid stock object")
+        if not isinstance(operation_type, BuySell):
+            raise ValueError("Invalid operation type")
         instance_to_append = Trade(quantity, stock, operation_type, price)
         self.trades[stock.symbol].append(instance_to_append)
 
