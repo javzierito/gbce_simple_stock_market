@@ -13,9 +13,8 @@ class BuySell(Enum):
 
 @dataclass
 class Trade:
-    # IMPROVEMENT javier: we can have a gui easily if i move attr to
     quantity: Decimal
     stock: BaseStock
     buysell: BuySell
     price: Decimal
-    timestamp: datetime = datetime.now()
+    timestamp: datetime

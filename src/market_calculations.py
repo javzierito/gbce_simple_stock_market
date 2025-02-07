@@ -10,20 +10,22 @@ from src.stock import BaseStock
 
 
 class TradingSystem:
-    def __init__(self, workers:  int = 4):
+    def __init__(self, workers: int = 4):
         self.trades: Dict[str, Queue] = {}
         self.lock_trading = threading.Lock()
         self.executor = ThreadPoolExecutor(max_workers=workers)
 
-    def record_trade(self, quantity: int, stock: BaseStock, operation_type: BuySell, price: float):
+    def record_trade(self, quantity: int, stock: BaseStock, operation_type: BuySell, price: float, timestamp: datetime):
         with self.lock_trading:
             if stock.symbol not in self.trades:
                 self.trades[stock.symbol] = Queue()
-        self.executor.submit(self._record_trade, quantity, stock, operation_type, price)
+        self.executor.submit(self._record_trade, quantity, stock, operation_type, price, timestamp)
 
-    def _record_trade(self, quantity: int, stock: BaseStock, operation_type: BuySell, price: float):
+    def _record_trade(
+        self, quantity: int, stock: BaseStock, operation_type: BuySell, price: float, timestamp: datetime
+    ):
         try:
-            trade_instance = Trade(quantity, stock, operation_type, price)
+            trade_instance = Trade(quantity, stock, operation_type, price, timestamp)
             self.trades[stock.symbol].put(trade_instance)
         except Exception as e:
             msg = f"problems recording trade for stock {stock}, operation {operation_type}, price {price}"

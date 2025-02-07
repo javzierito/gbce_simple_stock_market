@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 from decimal import Decimal
 from typing import Dict, Any, List
 import concurrent.futures
+from collections import deque
 
 from src.stock import stock_factory, CommonStock, PreferredStock
 from src.trade import BuySell
@@ -48,7 +49,7 @@ def create_trading_system_with_logged_trades(get_stock_instances):
         futures = []
         for stock in get_stock_instances:
             for quantity, price, operation in zip([3, 4], [15, 40], [BuySell.BUY, BuySell.SELL]):
-                trade_data = (quantity, stock, operation, price)
+                trade_data = (quantity, stock, operation, price, datetime.now())
                 future = executor.submit(trading_system.record_trade, *trade_data)
                 futures.append(future)
         concurrent.futures.wait(futures)
@@ -63,7 +64,7 @@ def setup_precision():
     return
 
 
-def generate_stock_symbols(num_symbols: int=50) -> list[str]:
+def generate_stock_symbols(num_symbols: int = 50) -> list[str]:
     symbols = set()
     while len(symbols) < num_symbols:
         symbol_length = random.randint(3, 5)
@@ -72,23 +73,55 @@ def generate_stock_symbols(num_symbols: int=50) -> list[str]:
     return list(symbols)
 
 
-def generate_random_stock():
-
-
-@pytest.fixture(params=[100, 10e5, 10e7])
+@pytest.fixture(params=[1000, 100000, 1000000])
 def generate_trades_data(request):
     num_trades = request.param
     stock_symbols = generate_stock_symbols(50)
     print(f"Generating {num_trades} trades for this test...")
-
-    trades_with_datetime = []
+    start_time = datetime.now()
+    print(f"Function started at: {start_time.strftime('%Y-%m-%d %H:%M:%S.%f')}")
+    trades_with_datetime = deque()
+    stock_instances = {}
     for _ in range(num_trades):
-        symbol = random.choice(stock_symbols)
-        quantity = random.randint(1, 10000)
-        buy_sell = random.choice(["BUY", "SELL"])
-        price = Decimal(random.uniform(0.01, 1000.00)).quantize(Decimal("0.01"))
-        timestamp = datetime.fromtimestamp(
-            random.randint(int((datetime.now() - timedelta(minutes=130)).timestamp()), int(datetime.now().timestamp()))
-        )
-        trades_with_datetime.append((symbol, quantity, buy_sell, price, timestamp))
-    return trades_with_datetime, stock_symbols
+        stock_attrs = {
+            "symbol": None,
+            "last_dividend": None,
+            "par_value": None,
+            "fixed_dividend": None,
+        }
+        stock_type, symbol = set_stock_attrs(stock_attrs, stock_symbols)
+        stock_instance = stock_factory(stock_type, stock_attrs)
+        if symbol not in stock_instances:
+            stock_instances[symbol] = stock_instance
+        else:
+            stock_instance = stock_instances[symbol]
+        trade_adata = set_trade_attrs(stock_instance)
+        trades_with_datetime.append(trade_adata)
+    end_time = datetime.now()
+    duration = end_time - start_time
+    print(f"Function ended at:   {end_time.strftime('%Y-%m-%d %H:%M:%S.%f')}")
+    print(f"Function execution time: {duration} sec")
+    print("------------------------------------------------------------------")
+    return trades_with_datetime, stock_symbols, list(stock_instances.values())
+
+
+def set_trade_attrs(stock_instance):
+    quantity = random.randint(1, 10000)
+    operation = random.choice(["BUY", "SELL"])
+    price = Decimal(random.uniform(0.01, 1000.00)).quantize(Decimal("0.01"))
+    timestamp = datetime.fromtimestamp(
+        random.randint(int((datetime.now() - timedelta(minutes=130)).timestamp()), int(datetime.now().timestamp()))
+    )
+    trade_adata = (quantity, stock_instance, operation, price, timestamp)
+    return trade_adata
+
+
+def set_stock_attrs(stock_attrs, stock_symbols):
+    stock_type = random.choice(["COMMON", "PREFERRED"])
+    symbol = random.choice(stock_symbols)
+    stock_attrs["symbol"] = symbol
+    stock_attrs["last_dividend"] = Decimal(random.uniform(0.01, 35))
+    stock_attrs["par_value"] = Decimal(random.randint(1, 350))
+    if stock_type == "PREFERRED":
+        stock_attrs["fixed_dividend"] = Decimal(random.uniform(0.01, 35))
+    return stock_type, symbol
