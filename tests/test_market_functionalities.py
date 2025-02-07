@@ -1,4 +1,5 @@
 import math
+import pytest
 
 from src.market_calculations import GBCEShareIndex, TradingSystem
 
@@ -18,3 +19,12 @@ def test_calculation_of_gbceindex_no_trades(get_stock_instances):
     gbce_index = GBCEShareIndex(stocks, trading_system)
     index_value = gbce_index.calculate_index()
     assert not index_value
+
+
+def test_wrong_args_for_trading_system(get_stock_instances):
+    trading_system = TradingSystem()
+    stock = get_stock_instances[1]
+    with pytest.raise(ValueError):
+        trading_system.record_trade()
+        trading_system.record_trade()
+        trading_system.record_trade()
