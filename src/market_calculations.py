@@ -25,6 +25,12 @@ class TradingSystem:
         self, quantity: int, stock: BaseStock, operation_type: BuySell, price: float, timestamp: datetime
     ):
         try:
+            if not isinstance(quantity, Decimal) or quantity <= 0:
+                raise ValueError("Quantity must be a positive Decimal")
+            if not isinstance(stock, BaseStock):
+                raise TypeError("Invalid stock object")
+            if not isinstance(operation_type, BuySell):
+                raise ValueError("Invalid operation type")
             trade_instance = Trade(quantity, stock, operation_type, price, timestamp)
             self.trades[stock.symbol].put(trade_instance)
         except Exception as e:
