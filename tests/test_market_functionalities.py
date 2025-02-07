@@ -1,5 +1,7 @@
 import math
 import pytest
+from decimal import Decimal
+from src.trade import BuySell
 
 from src.market_calculations import GBCEShareIndex, TradingSystem
 
@@ -25,6 +27,6 @@ def test_wrong_args_for_trading_system(get_stock_instances):
     trading_system = TradingSystem()
     stock = get_stock_instances[1]
     with pytest.raise(ValueError):
-        trading_system.record_trade()
-        trading_system.record_trade()
-        trading_system.record_trade()
+        trading_system.record_trade(Decimal(0), stock, BuySell.BUY, Decimal(30))
+        trading_system.record_trade(Decimal(12, "stock", BuySell.BUY, Decimal(30))
+        trading_system.record_trade(Decimal(2), stock, "george", Decimal(30))
